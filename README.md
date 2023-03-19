@@ -21,14 +21,15 @@ For this project was done the following:
 - the documentation for this project was completed with the help of **Sphinx**. It was applied in the functions and methods of the classes in the main modules:
    * *repository/contacts* & */users*
    * *routes/auth* & */contacts* & */users*
-   * *services/auth* & */email*
-- the repository modules are covered with unit tests using the **Unittest** framework.[^2] 
+   * *services/auth* [^2]
+- the repository modules are covered with unit tests using the **Unittest** framework.[^3] 
 - scr/routes is covered with functional tests using the **PyTest** framework.
-- the test coverage report was generated with **PyTest-Cov** [^3]
+- the test coverage report was generated with **PyTest-Cov** [^4]
 
 
 
 
 [^1]: You need to run docker-compose using the command *docker-compose up*
-[^2]: A separate folder, *tests*, was created for storing files for this test purpose. To run the tests the following command should be done: *pytest "name_of_the_file".py*.
-[^3]: [Link to Report File](REST/htmlov)
+[^2]: You can find it: *docs/_build/html/index.html*
+[^3]: A separate folder, *tests*, was created for storing files for this test purpose. To run the tests the following command should be done: *pytest "name_of_the_file".py*.
+[^4]: *REST/htmlov/index.html* or to run/refresh manually : *pytest --cov=src tests/*

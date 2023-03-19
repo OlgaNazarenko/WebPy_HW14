@@ -20,6 +20,8 @@ from sqlalchemy.orm import Session
 from src.database.connect import get_db
 from src.repository import users as repository_users
 from src.conf.config import settings
+from src.conf.messages import UNAUTHORIZED
+
 
 class Auth:
     pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -109,12 +111,12 @@ class Auth:
         """
 
         to_encode=data.copy()
-        if expires_delta :
+        if expires_delta:
             expire=datetime.utcnow() + timedelta(seconds = expires_delta)
-        else :
+        else:
             expire=datetime.utcnow() + timedelta(days = 7)
-        to_encode.update({"iat" : datetime.utcnow() , "exp" : expire , "scope" : "refresh_token"})
-        encoded_refresh_token=jwt.encode(to_encode , self.SECRET_KEY , algorithm = self.ALGORITHM)
+        to_encode.update({"iat": datetime.utcnow(), "exp": expire, "scope" : "refresh_token"})
+        encoded_refresh_token=jwt.encode(to_encode, self.SECRET_KEY, algorithm = self.ALGORITHM)
         return encoded_refresh_token
 
     async def decode_refresh_token(self, refresh_token: str):
@@ -140,7 +142,7 @@ class Auth:
                 return email
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid scope for token")
         except JWTError:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=UNAUTHORIZED)
 
 
     async def get_current_user(self, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
@@ -236,5 +238,6 @@ class Auth:
             print(e)
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                                 detail="Invalid token for email verification")
+
 
 auth_service = Auth()
