@@ -20,7 +20,7 @@ For this project was done the following:
 ------------------------------------------------------------------------------------------------
 - the documentation for this project was completed with the help of **Sphinx**. It was applied in the functions and methods of the classes in the main modules:
    * *repository/contacts* & */users*
-   * *routes/auth* & */contacts* & */users*
+   * *routes/auth* & */contacts*
    * *services/auth* [^2]
 - the repository modules are covered with unit tests using the **Unittest** framework.[^3] 
 - scr/routes is covered with functional tests using the **PyTest** framework.
