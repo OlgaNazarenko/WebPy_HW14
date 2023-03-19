@@ -19,9 +19,9 @@ For this project was done the following:
 - Docker Compose to run all services and databases in the application (Postgres and Redis)[^1]
 ------------------------------------------------------------------------------------------------
 - the documentation for this project was completed with the help of **Sphinx**. It was applied in the functions and methods of the classes in the main modules:
-    *repository/contacts* & */users*
-    *routes/auth* & */contacts* & */users*
-    *services/auth* & */email*
+   * *repository/contacts* & */users*
+   * *routes/auth* & */contacts* & */users*
+   * *services/auth* & */email*
 - the repository modules are covered with unit tests using the **Unittest** framework.[^2] 
 - scr/routes is covered with functional tests using the **PyTest** framework.
 - the test coverage report was generated with **PyTest-Cov** [^3]
