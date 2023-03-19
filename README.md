@@ -32,4 +32,4 @@ For this project was done the following:
 [^1]: You need to run docker-compose using the command *docker-compose up*
 [^2]: You can find it: *docs/_build/html/index.html*
 [^3]: A separate folder, *tests*, was created for storing files for this test purpose. To run the tests the following command should be done: *pytest "name_of_the_file".py*.
-[^4]: *REST/htmlov/index.html* or to run/refresh manually : *pytest --cov=src tests/*
+[^4]: *REST/htmlov/index.html* or to run/refresh manually : *pytest --cov=src --cov-report html  tests/*
