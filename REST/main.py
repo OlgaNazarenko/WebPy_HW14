@@ -79,7 +79,7 @@ async def startup():
 
 
 @app.get('/', name='Main')
-def read_rote():
+def read_root():
     return {'message': "REST APP v1.2"}
 
 

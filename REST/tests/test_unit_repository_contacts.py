@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import unittest
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from sqlalchemy.orm import Session
 
@@ -170,28 +170,43 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(updated_user.avatar, new_avatar_url)
 
-async def test_contacts_choice(self):
-    contact1 = Contact(name="Tommy", surname="Huyng", email="tommy.huyng@test.com", user=self.user)
-    contact2 = Contact(name="Jin", surname="Cha", email="jin.cha@test.com", user=self.user)
-    contact3 = Contact(name="Lee", surname="Ji", email="li.ji@test.com", user=self.user)
+    async def test_contacts_choice(self) :
+        contact1 = Contact(name = "Tommy", surname = "Huyng", email = "tommy.huyng@test.com", user = self.user)
+        contact2 = Contact(name = "Jin", surname = "Cha", email = "jin.cha@test.com", user = self.user)
+        contact3 = Contact(name = "Lee", surname = "Ji", email = "li.ji@test.com", user = self.user)
 
-    self.session.add_all([contact1, contact2, contact3])
-    self.session.commit()
+        self.session.add_all([contact1, contact2, contact3])
+        self.session.commit()
 
-    result = await get_contacts_choice(name="", surname="Huyng", email="", user=self.user, db=self.session)
-    self.assertEqual(result.name, contact1.name)
-    self.assertEqual(result.surname,contact1.surname)
-    self.assertEqual(result.email, contact1.email)
+        mock_query = MagicMock()
 
-    result = await get_contacts_choice(name="Jin", surname="", email="", user=self.user, db=self.session)
-    self.assertEqual(result.name, contact2.name)
-    self.assertEqual(result.surname, contact2.surname)
-    self.assertEqual(result.email, contact2.email)
+        with patch.object(self.session, 'query', return_value = mock_query):
+            mock_query.filter.return_value = mock_query
+            mock_query.filter_by.return_value = mock_query
+            mock_query.first.return_value = contact1
 
-    result = await get_contacts_choice(name="", surname="", email="li.ji@test.com", user=self.user, db=self.session)
-    self.assertEqual(result.name, contact3.name)
-    self.assertEqual(result.surname, contact3.surname)
-    self.assertEqual(result.email, contact3.email)
+            result = await get_contacts_choice(name = "", surname = "Huyng", email = "", user = self.user, db=self.session)
+            self.assertEqual(result.name, "Tommy")
+            self.assertEqual(result.surname, "Huyng")
+            self.assertEqual(result.email, "tommy.huyng@test.com")
+
+            mock_query.filter.return_value = mock_query
+            mock_query.filter_by.return_value = mock_query
+            mock_query.first.return_value = contact2
+
+            result = await get_contacts_choice(name="Jin", surname="", email="", user=self.user, db=self.session)
+            self.assertEqual(result.name, "Jin")
+            self.assertEqual(result.surname, "Cha")
+            self.assertEqual(result.email, "jin.cha@test.com")
+
+            mock_query.filter.return_value = mock_query
+            mock_query.filter_by.return_value = mock_query
+            mock_query.first.return_value = contact3
+
+            result = await get_contacts_choice(name="", surname="", email="li.ji@test.com", user=self.user, db=self.session)
+            self.assertEqual(result.name, "Lee")
+            self.assertEqual(result.surname, "Ji")
+            self.assertEqual(result.email, "li.ji@test.com")
 
 
 if __name__ == '__main__':

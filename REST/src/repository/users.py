@@ -48,7 +48,7 @@ async def create_user(body: UserModel, db: Session) -> User:
     return new_user
 
 
-async def update_token(user: User, token: str | None, db: Session) -> None:
+async def update_token(user: User, token: str | None, db: Session) -> User:
     """
     Updates the token used for user login.
 
@@ -59,17 +59,20 @@ async def update_token(user: User, token: str | None, db: Session) -> None:
     :type token: str | None
 
     :param db: The database session.
-    :type db: Session
+    :type db: User or Session
 
-    :return: None
+    :return: The updated user.
+    :rtype: User
 
     """
 
     user.refresh_token = token
     db.commit()
+    db.refresh(user)
+    return user
 
 
-async def confirmed_email(email: str, db: Session) -> None:
+async def confirmed_email(email: str, db: Session) -> User:
     """
     Marks the specified email address as confirmed for user login.
         When a user creates an account, they are typically sent a confirmation email to verify
@@ -82,13 +85,16 @@ async def confirmed_email(email: str, db: Session) -> None:
     :param db: The database session.
     :type db: Session
 
-    :return: None
+    :return: The confirmed user.
+    :rtype: User
 
     """
 
     user = await get_user_by_email(email, db)
     user.confirmed = True
     db.commit()
+    db.refresh(user)
+    return user
 
 
 async def update_avatar(email: str, url: str, db: Session) -> User:
