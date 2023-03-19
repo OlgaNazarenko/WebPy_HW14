@@ -16,15 +16,17 @@ For this project was done the following:
 - CORS for your REST API; 
 - the option to update the user's avatar. For this purpose was used the Cloudinary service; 
 - all sensitive info is stored in the ".env" file; 
-- Docker Compose to run all services and databases in the application (Postgres and Redis)[^1]
+- Docker Compose to run all services and databases in the application (Postgres and Redis)[1]
 ------------------------------------------------------------------------------------------------
 - the documentation for this project was completed with the help of **Sphinx**. It was applied in the functions and methods of the classes in the main modules:
     *repository/contacts* & */users*
     *routes/auth* & */contacts* & */users*
     *services/auth* & */email*
-- the repository modules are covered with unit tests using the **Unittest** framework.[^2] 
+- the repository modules are covered with unit tests using the **Unittest** framework.[2] 
 - scr/routes is covered with functional tests using the **PyTest** framework.
-- the test coverage report was generated with **PyTest-Cov** [^3]
+- the test coverage report was generated with **PyTest-Cov** [3]
+
+
 
 
 [^1] You need to run docker-compose using the command *docker-compose up*

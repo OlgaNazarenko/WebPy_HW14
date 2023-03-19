@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 
 import main
 
-client = TestClient(main.app, host="127.0.0.1")
+client = TestClient(main.app, base_url="http://127.0.0.1")
 
 
 def test_root():
