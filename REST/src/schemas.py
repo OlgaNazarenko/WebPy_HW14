@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 from datetime import date, datetime
+from typing import Optional
 
 
 class ContactModel(BaseModel):
@@ -41,7 +42,7 @@ class UserDb(BaseModel):
     username: str
     email: str
     created_at: datetime
-    avatar: str
+    avatar: Optional[str] = None
 
     class Config:
         orm_mode = True

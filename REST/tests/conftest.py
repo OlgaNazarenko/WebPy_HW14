@@ -47,21 +47,7 @@ def client(session):
 
     yield TestClient(app)
 
-#
-# @pytest.fixture(scope="module")
-# def client():
-#     def override_get_db():
-#         try:
-#             yield session
-#         finally:
-#             session.close()
-#
-#     app.dependency_overrides[get_db] = override_get_db
-#
-#     with TestClient(app) as client:
-#         yield client
-
 
 @pytest.fixture(scope="module")
 def user():
-    return {"username": "deadpool", "email": "deadpool@example.com", "password": "123456789"}
+    return {"username": "myuser", "email": "test@example.com", "password": "123456789", "confirmed": True}

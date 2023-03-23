@@ -6,7 +6,7 @@ import cloudinary.uploader
 
 from src.database.connect import get_db
 from src.database.model import User
-from src.schemas import UserModel, UserResponse, TokenModel, UserDb
+from src.schemas import UserModel, UserResponse, UserDb
 from src.repository import users as repository_users
 from src.services.auth import auth_service
 from src.conf.config import settings
@@ -62,4 +62,3 @@ async def update_avatar_user(file: UploadFile = File(), current_user: User = Dep
     user = await repository_users.update_avatar(current_user.email, src_url, db)
 
     return user
-

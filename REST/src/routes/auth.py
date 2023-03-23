@@ -13,7 +13,7 @@ from src.services.auth import auth_service
 from src.services.email import send_email
 from src.conf.messages import (
     INVALID_PASSWORD, INVALID_EMAIL, EMAIL_NOT_CONFIRMED, USER_EXISTS, EMAIL_CONFIRMED,
-    INVALID_REFRESH_TOKEN, NOT_FOUND
+    INVALID_REFRESH_TOKEN, NOT_FOUND, USER_CONFIRMATION
 )
 
 
@@ -59,7 +59,7 @@ async def signup(
     body.password = auth_service.get_password_hash(body.password)
     new_user = await repository_users.create_user(body, db)
     background_tasks.add_task(send_email, new_user.email, new_user.username, request.base_url)
-    return {"user": new_user, "detail": "User successfully created. Check your email for confirmation."}
+    return {"user": new_user, "detail": USER_CONFIRMATION}
 
 
 @router.post("/login", response_model=TokenModel)
@@ -167,7 +167,7 @@ async def confirmed_email(token: str, db: Session = Depends(get_db)) -> dict[str
     user = await repository_users.get_user_by_email(email, db)
 
     if user is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Verification error")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=NOT_FOUND)
     if user.confirmed:
         return {"message": USER_EXISTS}
 

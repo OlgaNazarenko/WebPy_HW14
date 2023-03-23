@@ -24,12 +24,12 @@ class User(Base):
     __tablename__ = "user"
     id = Column(Integer, primary_key=True)
     username = Column(String(50))
-    email = Column(String(150), unique=True)
+    email = Column(String(150))
     password = Column(String(255), nullable=False)
     avatar = Column(String(255) , nullable = True)
     created_at = Column('created_at', DateTime, default=func.now())
     refresh_token = Column(String(255), nullable=True)
-    confirmed=Column(Boolean , default = False)
+    confirmed = Column(Boolean, default = False)
 
 
 class EmailSchema(BaseModel):
