@@ -86,6 +86,7 @@ def healthchecker(db: Session = Depends(get_db)):
                             detail="Error connecting to the database")
 
 
+
 @app.post("/send-email")
 async def send_in_background(background_tasks: BackgroundTasks, body: EmailSchema):
     message = MessageSchema(

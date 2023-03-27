@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
-from typing import List , Sequence
+from typing import List, Sequence
 
-from sqlalchemy import func , Row
+from sqlalchemy import func, Row, select
 from sqlalchemy.sql import text
 
 from sqlalchemy.orm import Session
@@ -31,7 +31,6 @@ async def create_contact(body: ContactModel, user: User, db: Session) -> Contact
     """
 
     contact = Contact(
-        id=None,
         name=body.name,
         surname=body.surname,
         email=body.email,
@@ -45,13 +44,13 @@ async def create_contact(body: ContactModel, user: User, db: Session) -> Contact
         db.commit()
     except Exception as e:
         db.rollback()
-        raise ValueError ("Failed to create user", str(e))
+        raise ValueError("Failed to create user", str(e))
     db.refresh(contact)
 
     return contact
 
 
-async def get_contacts(skip: int, limit: int,user: User, db: Session) -> List[Contact]:
+async def get_contacts(skip: int, limit: int, user: User, db: Session) -> List[Contact]:
     """
     Retrieves a list of contacts with specified pagination parameters.
 
@@ -76,7 +75,7 @@ async def get_contacts(skip: int, limit: int,user: User, db: Session) -> List[Co
     return contact
 
 
-async def get_contact(contact_id: int, user: User,db: Session) -> Contact:
+async def get_contact(contact_id: int, user: User, db: Session) -> Contact:
     """
     Retrieves a contact with the specified ID for a specific user.
 
@@ -127,7 +126,7 @@ async def update_contact(body: ContactModel, contact_id: int, user: User, db: Se
 
     """
 
-    contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id == user.id)).first()
+    contact = db.query(Contact).filter(and_(Contact.id == contact_id, Contact.user_id == user.id)).first()
 
     if contact:
         contact.name = body.name
@@ -140,7 +139,7 @@ async def update_contact(body: ContactModel, contact_id: int, user: User, db: Se
 
 
 async def get_contacts_choice(name: str | None, surname: str | None,
-                              email: str | None, user: User, db: Session) -> Contact:
+                              email: str | None, user: User, db: Session) -> list[Contact]:
     """
     Allows to search for a contact based either on name, surname, or email.
 
@@ -159,26 +158,17 @@ async def get_contacts_choice(name: str | None, surname: str | None,
     :param db: The database session.
     :type db: Session
 
-    :return: The requested contact.
-    :rtype: Contact
+    :return: The list of contacts.
+    :rtype: list[Contact]
 
     """
 
     contacts = db.query(Contact).filter(and_(or_(
-        Contact.name == name, Contact.surname == surname, Contact.email == email),
+        Contact.name.like(f"%{name}%"), Contact.surname.like(f"%{surname}%"), Contact.email.like(f"%{email}%")),
         Contact.user_id == user.id)
-    )
+    ).all()
 
-    if name:
-        contacts = contacts.filter(Contact.name.like(f"%{name}%"))
-    if surname:
-        contacts = contacts.filter(Contact.surname.like(f"%{surname}%"))
-    if email:
-        contacts = contacts.filter(Contact.email.like(f"%{email}%"))
-    print(f"name: {name}, surname: {surname}, email: {email}")
-
-    contact = contacts.first()
-    return contact
+    return contacts
 
 
 async def get_contacts_birthdays(user: User, db: Session) -> List[Contact]:
@@ -199,7 +189,7 @@ async def get_contacts_birthdays(user: User, db: Session) -> List[Contact]:
     start_date = datetime.now().date()
     end_date = start_date + timedelta(days=7)
 
-    params = {"start_date" : start_date.strftime("%m-%d") , "end_date" : end_date.strftime("%m-%d")}
+    params = {"start_date" : start_date.strftime("%m-%d"), "end_date": end_date.strftime("%m-%d")}
 
     contacts = db.execute(
         text("SELECT * FROM contacts WHERE TO_CHAR(date_of_birth, 'MM-DD') BETWEEN :start_date AND :end_date "
@@ -231,7 +221,7 @@ async def update_contact_status(body: ContactStatusUpdate, contact_id: int, user
 
     """
 
-    contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id == user.id)).first()
+    contact = db.query(Contact).filter(and_(Contact.id == contact_id, Contact.user_id == user.id)).first()
 
     if contact:
         contact.done = body.done
@@ -257,7 +247,7 @@ async def remove_contact(contact_id: int, user: User, db: Session) -> Contact | 
 
     """
 
-    contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id == user.id)).first()
+    contact = db.query(Contact).filter(and_(Contact.id == contact_id, Contact.user_id == user.id)).first()
 
     if contact:
         db.delete(contact)

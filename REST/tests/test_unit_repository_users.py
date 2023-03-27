@@ -31,7 +31,7 @@ class TestUsers(unittest.IsolatedAsyncioTestCase):
 
         mock_query = MagicMock()
         mock_query.filter.return_value = mock_query
-        mock_query.first.return_value =  user
+        mock_query.first.return_value = user
 
         with patch.object(self.session, 'query', return_value=mock_query):
             find_user = await get_user_by_email(email='test@example.com', db=self.session)
@@ -48,7 +48,7 @@ class TestUsers(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.username, body.username)
         self.assertEqual(result.email, body.email)
         self.assertEqual(result.password, body.password)
-        self.assertTrue(hasattr(result , "id"))
+        self.assertTrue(hasattr(result, "id"))
 
     async def test_update_token(self):
         user = User(refresh_token='test123')
@@ -60,7 +60,6 @@ class TestUsers(unittest.IsolatedAsyncioTestCase):
         updated_user = await update_token(user=user, token=new_token, db=self.session)
 
         self.assertEqual(updated_user.refresh_token, new_token)
-
 
     async def test_confirmed_email(self):
         user = User(email='test@example.com')

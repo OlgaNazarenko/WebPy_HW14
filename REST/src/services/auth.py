@@ -87,11 +87,11 @@ class Auth:
             expire = datetime.utcnow() + timedelta(seconds=expires_delta)
         else:
             expire = datetime.utcnow() + timedelta(minutes=15)
-        to_encode.update({"iat": datetime.utcnow(), "exp": expire, "scope":"access_token"})
+        to_encode.update({"iat": datetime.utcnow(), "exp": expire, "scope": "access_token"})
         encoded_access_token = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
-        return  encoded_access_token
+        return encoded_access_token
 
-    async def create_refresh_token(self , data: dict , expires_delta: Optional[float] = None) :
+    async def create_refresh_token(self, data: dict, expires_delta: Optional[float] = None):
         """
         The create_refresh_token function creates a refresh token for the user.
             Args:
@@ -110,13 +110,13 @@ class Auth:
         :return: A refresh token
         """
 
-        to_encode=data.copy()
+        to_encode = data.copy()
         if expires_delta:
-            expire=datetime.utcnow() + timedelta(seconds = expires_delta)
+            expire = datetime.utcnow() + timedelta(seconds = expires_delta)
         else:
-            expire=datetime.utcnow() + timedelta(days = 7)
+            expire = datetime.utcnow() + timedelta(days = 7)
         to_encode.update({"iat": datetime.utcnow(), "exp": expire, "scope" : "refresh_token"})
-        encoded_refresh_token=jwt.encode(to_encode, self.SECRET_KEY, algorithm = self.ALGORITHM)
+        encoded_refresh_token = jwt.encode(to_encode, self.SECRET_KEY, algorithm = self.ALGORITHM)
         return encoded_refresh_token
 
     async def decode_refresh_token(self, refresh_token: str):
@@ -143,7 +143,6 @@ class Auth:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid scope for token")
         except JWTError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=UNAUTHORIZED)
-
 
     async def get_current_user(self, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
         """
@@ -191,7 +190,6 @@ class Auth:
             user = pickle.loads(user)
         return user
 
-
     async def create_email_token(self, data: dict):
         """
         The create_email_token function takes in a dictionary of data and returns a token.
@@ -230,11 +228,11 @@ class Auth:
 
         try:
             payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
-            if payload['scope'] == 'email_token' :
-                email=payload["sub"]
+            if payload['scope'] == 'email_token':
+                email = payload["sub"]
                 return email
             raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED , detail = 'Invalid scope for token')
-        except JWTError as e :
+        except JWTError as e:
             print(e)
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                                 detail="Invalid token for email verification")

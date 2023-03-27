@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
-from src.database.model import User
-from src.schemas import UserModel
+from ..database.model import User
+from ..schemas import UserModel
 
 
 async def get_user_by_email(email: str, db: Session) -> User:

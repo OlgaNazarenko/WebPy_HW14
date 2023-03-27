@@ -34,6 +34,9 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
         self.session = MagicMock(spec=Session)
         self.user = User(id=1)
 
+    def tearDown(self):
+        pass
+
     async def test_get_contacts(self):
         contacts = [Contact(), Contact(), Contact()]
         self.session.query().filter().offset().limit().all.return_value = contacts
@@ -70,8 +73,21 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.email, body.email)
         self.assertEqual(result.mobile, body.mobile)
         self.assertEqual(result.date_of_birth, body.date_of_birth)
-        self.assertEqual(result.user_id , self.user.id)
-        self.assertTrue(hasattr(result , "id"))
+        self.assertEqual(result.user_id, self.user.id)
+        self.assertTrue(hasattr(result, "id"))
+
+    # async def test_create_contact_failure(self):
+    #     body = ContactModel(
+    #         name = "test",
+    #         surname = "TestContact",
+    #         email = "",
+    #         mobile = "0932323321",
+    #         date_of_birth = "1999-01-25"
+    #     )
+
+    # with self.assertRaises(ValueError) :
+    #     if not create_contact(body=body, user = self.user, db=self.session) :
+    #         print()
 
     async def test_remove_contact_found(self):
         contact = Contact()
@@ -115,7 +131,6 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.date_of_birth, body.date_of_birth)
         self.assertTrue(hasattr(result, "id"))
 
-
     async def test_update_contact_not_found(self):
         body = ContactModel(
             name = "test3" ,
@@ -134,7 +149,7 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
         contact = Contact()
         self.session.query().filter().first.return_value = contact
         self.session.commit.return_value = None
-        result = await update_contact_status(body=body,contact_id=1,user=self.user, db=self.session)
+        result = await update_contact_status(body=body, contact_id=1, user=self.user, db=self.session)
         self.assertEqual(result, contact)
 
     async def test_update_status_contact_not_found(self):
@@ -143,7 +158,7 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
         body = ContactStatusUpdate(done=True)
         self.session.query().filter().first.return_value = None
         self.session.commit.return_value = None
-        result = await update_contact_status(body=body,contact_id=1,user=self.user, db=self.session)
+        result = await update_contact_status(body=body, contact_id=1, user=self.user, db=self.session)
         self.assertIsNone(result)
 
     async def test_get_contacts_birthdays(self) :
@@ -163,17 +178,17 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
         self.session.add(user)
         self.session.commit()
 
-        new_avatar_url='https://instance.com/new_avatar.jpg'
+        new_avatar_url = 'https://instance.com/new_avatar.jpg'
         await update_avatar(email='test@example.com', url=new_avatar_url, db=self.session)
 
         updated_user = await get_user_by_email(email='test@example.com', db=self.session)
 
         self.assertEqual(updated_user.avatar, new_avatar_url)
 
-    async def test_contacts_choice(self) :
-        contact1 = Contact(name = "Tommy", surname = "Huyng", email = "tommy.huyng@test.com", user = self.user)
-        contact2 = Contact(name = "Jin", surname = "Cha", email = "jin.cha@test.com", user = self.user)
-        contact3 = Contact(name = "Lee", surname = "Ji", email = "li.ji@test.com", user = self.user)
+    async def test_contacts_choice(self):
+        contact1 = Contact(name="Tommy", surname="Huyng", email="tommy.huyng@test.com", user=self.user)
+        contact2 = Contact(name="Jin", surname="Cha", email="jin.cha@test.com", user=self.user)
+        contact3 = Contact(name="Lee", surname="Ji", email="li.ji@test.com", user=self.user)
 
         self.session.add_all([contact1, contact2, contact3])
         self.session.commit()
@@ -183,30 +198,33 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
         with patch.object(self.session, 'query', return_value = mock_query):
             mock_query.filter.return_value = mock_query
             mock_query.filter_by.return_value = mock_query
-            mock_query.first.return_value = contact1
 
-            result = await get_contacts_choice(name = "", surname = "Huyng", email = "", user = self.user, db=self.session)
-            self.assertEqual(result.name, "Tommy")
-            self.assertEqual(result.surname, "Huyng")
-            self.assertEqual(result.email, "tommy.huyng@test.com")
+            # Test for the first contact
+            mock_query.all.return_value = [contact1]
+            result = await get_contacts_choice(name="", surname ="Huyng", email="", user=self.user,
+                                             db=self.session)
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0].name, "Tommy")
+            self.assertEqual(result[0].surname, "Huyng")
+            self.assertEqual(result[0].email, "tommy.huyng@test.com")
 
-            mock_query.filter.return_value = mock_query
-            mock_query.filter_by.return_value = mock_query
-            mock_query.first.return_value = contact2
+            # Test for the second contact
+            mock_query.all.return_value = [contact2]
+            result = await get_contacts_choice(name="Jin", surname="", email="", user=self.user,
+                                             db=self.session)
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0].name, "Jin")
+            self.assertEqual(result[0].surname, "Cha")
+            self.assertEqual(result[0].email, "jin.cha@test.com")
 
-            result = await get_contacts_choice(name="Jin", surname="", email="", user=self.user, db=self.session)
-            self.assertEqual(result.name, "Jin")
-            self.assertEqual(result.surname, "Cha")
-            self.assertEqual(result.email, "jin.cha@test.com")
-
-            mock_query.filter.return_value = mock_query
-            mock_query.filter_by.return_value = mock_query
-            mock_query.first.return_value = contact3
-
-            result = await get_contacts_choice(name="", surname="", email="li.ji@test.com", user=self.user, db=self.session)
-            self.assertEqual(result.name, "Lee")
-            self.assertEqual(result.surname, "Ji")
-            self.assertEqual(result.email, "li.ji@test.com")
+            # Test for the third contact
+            mock_query.all.return_value = [contact3]
+            result = await get_contacts_choice(name="", surname="", email="li.ji@test.com", user=self.user,
+                                             db=self.session)
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0].name, "Lee")
+            self.assertEqual(result[0].surname, "Ji")
+            self.assertEqual(result[0].email, "li.ji@test.com")
 
 
 if __name__ == '__main__':

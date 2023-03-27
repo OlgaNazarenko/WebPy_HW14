@@ -13,7 +13,7 @@ from src.services.auth import auth_service
 from src.services.email import send_email
 from src.conf.messages import (
     INVALID_PASSWORD, INVALID_EMAIL, EMAIL_NOT_CONFIRMED, USER_EXISTS, EMAIL_CONFIRMED,
-    INVALID_REFRESH_TOKEN, NOT_FOUND, USER_CONFIRMATION
+    INVALID_REFRESH_TOKEN, NOT_FOUND, USER_CONFIRMATION, ALREADY_CONFIRMED_EMAIL
 )
 
 
@@ -54,6 +54,7 @@ async def signup(
     """
 
     exist_user = await repository_users.get_user_by_email(body.email, db)
+    print(f"{exist_user=}")
     if exist_user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=USER_EXISTS)
     body.password = auth_service.get_password_hash(body.password)
@@ -141,7 +142,7 @@ async def refresh_token(
 
 
 @router.get('/confirmed_email/{token}')
-async def confirmed_email(token: str, db: Session = Depends(get_db)) -> dict[str , str] | dict[str , str]:
+async def confirmed_email(token: str, db: Session = Depends(get_db)) -> dict[str, str] | dict[str, str]:
     """
     Provides the functionality of confirming the email address.
 
@@ -169,7 +170,7 @@ async def confirmed_email(token: str, db: Session = Depends(get_db)) -> dict[str
     if user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=NOT_FOUND)
     if user.confirmed:
-        return {"message": USER_EXISTS}
+        return {"message": "The email already confirmed"}
 
     await repository_users.confirmed_email(email, db)
     return {"message": EMAIL_CONFIRMED}
@@ -204,8 +205,12 @@ async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, r
 
     user = await repository_users.get_user_by_email(body.email, db)
 
+    if not user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=NOT_FOUND)
+
     if user.confirmed:
-        return {"message": EMAIL_CONFIRMED}
-    if user:
-        background_tasks.add_task(send_email, user.email, user.username, request.base_url)
+        return {"message": ALREADY_CONFIRMED_EMAIL}
+
+    background_tasks.add_task(send_email, user.email, user.username, request.base_url)
+
     return {"message": "Check your email for confirmation."}
