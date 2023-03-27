@@ -23,7 +23,7 @@ For this project was done the following:
    * *routes/auth* & */contacts*
    * *services/auth* [^2]
 - the repository modules are covered with unit tests using the **Unittest** framework.
-- scr/routes is covered with functional tests using the **PyTest** framework.[^3] 
+- the folder, scr/routes, is covered with functional tests using the **PyTest** framework.[^3] 
 - the test coverage report was generated with **PyTest-Cov** [^4]
 
 
