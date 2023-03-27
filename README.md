@@ -1,11 +1,11 @@
 ## WebPy_HW14
-For this project it was used poetry, which is designed for dependency management and packaging in this project. It allowed declaring the libraries of this project depends on and manages (install/update) them for you. Kindly activate it.
+For this project, it was used poetry, which is designed for dependency management and packaging in this project. It allowed declaring the libraries of this project depends on and manages (install/update) them for you. Kindly activate it.
 
-REST API for storing and managing contacts 1. For the start need to initialize Docker through "Docker Compose" in order to initialize all services and databases used in this project, like Postgres and Redis:
+REST API for storing and managing contacts 1. For the start need to initialize Docker through "Docker Compose" to initialize all services and databases used in this project, like Postgres and Redis:
         
     docker-compose up
 
-Then, run the following command to start the FastAPI server in folder "REST":
+Then, run the following command to start the FastAPI server in the folder "REST":
 
     python3 (py) main.py
 
@@ -14,7 +14,7 @@ For this project was done the following:
 - verification of the registered user's e-mail; 
 - added the limit of requests to the contact routes along with the rate at which contacts are created:
 - CORS for your REST API; 
-- the option to update the user's avatar. For this purpose was used the Cloudinary service; 
+- the option to update the user's avatar. For this purpose the Cloudinary service was used ; 
 - all sensitive info is stored in the ".env" file; 
 - Docker Compose to run all services and databases in the application (Postgres and Redis)[^1]
 ------------------------------------------------------------------------------------------------
