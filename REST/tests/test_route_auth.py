@@ -3,7 +3,7 @@ import asyncio
 from unittest import mock
 from unittest.mock import MagicMock, patch, Mock
 from fastapi.testclient import TestClient
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 
 from src.database.model import User
@@ -27,7 +27,7 @@ class TestSignupUser:
             json=user,
         )
 
-        assert response.status_code == 201, response.text
+        assert response.status_code == status.HTTP_201_CREATED, response.text
         data = response.json()
         assert response.json()["user"]["email"] == user.get("email")
         assert "id" in data["user"]
@@ -39,7 +39,7 @@ class TestSignupUser:
             json=user,
         )
 
-        assert response.status_code == 409, response.text
+        assert response.status_code == status.HTTP_409_CONFLICT, response.text
         assert response.json()["detail"] == USER_EXISTS
 
 
@@ -51,7 +51,7 @@ class TestLogin:
             data = {"username": 'invalid.email@test.com', "password": user.get('password')},
         )
 
-        assert response.status_code == 401, response.text
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED, response.text
         assert response.json()["detail"] == INVALID_EMAIL
 
     def test_login_not_confirmed_email(self, client, user, session):
@@ -60,7 +60,7 @@ class TestLogin:
             data = {"username": user.get('email'), "password": user.get('password')},
         )
 
-        assert response.status_code == 401, response.text
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED, response.text
         assert response.json()["detail"] == EMAIL_NOT_CONFIRMED
 
     def test_login_user(self, client, session, user):
@@ -73,7 +73,7 @@ class TestLogin:
             data={"username": user.get('email'), "password": user.get('password')},
         )
 
-        assert response.status_code == 200, response.text
+        assert response.status_code == status.HTTP_200_OK, response.text
         assert response.json()["token_type"] == "bearer"
 
     def test_login_wrong_password(self, client, user):
@@ -82,7 +82,7 @@ class TestLogin:
             data = {"username": user.get('email'), "password": "invalid_password"},
         )
 
-        assert response.status_code == 401, response.text
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED, response.text
         assert response.json()["detail"] == INVALID_PASSWORD
 
 
@@ -95,7 +95,7 @@ class TestConfirmation:
         token = asyncio.run(auth_service.create_email_token(data = {"sub": user["email"]}))
         response = client.get(f"/api/auth/confirmed_email/{token}")
 
-        assert response.status_code == 200, response.text
+        assert response.status_code == status.HTTP_200_OK, response.text
         assert response.json() == {"message": EMAIL_CONFIRMED}
 
 
@@ -106,7 +106,7 @@ class TestRequestEmail:
             json = {"email": user["email"]}
         )
 
-        assert response.status_code == 200, response.text
+        assert response.status_code == status.HTTP_200_OK, response.text
         assert response.json() == {"message": ALREADY_CONFIRMED_EMAIL}
 
     def test_request_email_user_not_found(self, user, client, session):
@@ -115,7 +115,7 @@ class TestRequestEmail:
             json = {"email": "invalid@test.com"}
         )
 
-        assert response.status_code == 400, response.text
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
         assert response.json() == {"detail": NOT_FOUND}
 
     def test_request_email_successfully_confirmed(self, user, client, session):
@@ -129,7 +129,7 @@ class TestRequestEmail:
         )
         print(response.text)
         print(response.status_code)
-        assert response.status_code == 200, response.text
+        assert response.status_code == status.HTTP_200_OK, response.text
         assert response.json() == {"message": "Check your email for confirmation."}
 
 
@@ -142,7 +142,7 @@ class TestRefreshToken:
             headers={"Authorization": f"Bearer {current_user.refresh_token}"}
         )
 
-        assert response.status_code == 200, response.text
+        assert response.status_code == status.HTTP_200_OK, response.text
         assert "access_token" in response.json()
         assert "refresh_token" in response.json()
         assert response.json()["token_type"] == "bearer"
@@ -157,5 +157,5 @@ class TestRefreshToken:
             headers = {"Authorization": f"Bearer {invalid_refresh_token}"}
         )
 
-        assert response.status_code == 401, response.text
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED, response.text
         assert response.json()["detail"] == INVALID_REFRESH_TOKEN

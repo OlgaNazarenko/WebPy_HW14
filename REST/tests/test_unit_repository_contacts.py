@@ -133,10 +133,10 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
 
     async def test_update_contact_not_found(self):
         body = ContactModel(
-            name = "test3" ,
-            surname = "TestContact3" ,
-            email = "test3@test.com" ,
-            mobile = "093333333" ,
+            name = "test3",
+            surname = "TestContact3",
+            email = "test3@test.com",
+            mobile = "093333333",
             date_of_birth = "1993-03-13"
         )
         self.session.query().filter().first.return_value = None
@@ -161,7 +161,7 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
         result = await update_contact_status(body=body, contact_id=1, user=self.user, db=self.session)
         self.assertIsNone(result)
 
-    async def test_get_contacts_birthdays(self) :
+    async def test_get_contacts_birthdays(self):
         today = datetime.now().date()
         contacts = [
             Contact(date_of_birth=(today + timedelta(days=7))),
@@ -202,7 +202,7 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
             # Test for the first contact
             mock_query.all.return_value = [contact1]
             result = await get_contacts_choice(name="", surname ="Huyng", email="", user=self.user,
-                                             db=self.session)
+                                               db=self.session)
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0].name, "Tommy")
             self.assertEqual(result[0].surname, "Huyng")
@@ -211,7 +211,7 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
             # Test for the second contact
             mock_query.all.return_value = [contact2]
             result = await get_contacts_choice(name="Jin", surname="", email="", user=self.user,
-                                             db=self.session)
+                                               db=self.session)
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0].name, "Jin")
             self.assertEqual(result[0].surname, "Cha")
@@ -220,7 +220,7 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
             # Test for the third contact
             mock_query.all.return_value = [contact3]
             result = await get_contacts_choice(name="", surname="", email="li.ji@test.com", user=self.user,
-                                             db=self.session)
+                                               db=self.session)
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0].name, "Lee")
             self.assertEqual(result[0].surname, "Ji")

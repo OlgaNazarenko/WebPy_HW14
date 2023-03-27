@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from sqlalchemy import TextClause
+from fastapi import status
 
 from src.database.model import User
 from src.services.auth import auth_service
@@ -53,7 +54,7 @@ class TestCreateContact:
                 headers={"Authorization": f"Bearer {access_token}"}
             )
 
-            assert response.status_code == 201, response.text
+            assert response.status_code == status.HTTP_201_CREATED, response.text
             data = response.json()
 
             assert data["name"] == contact["name"]
@@ -73,7 +74,7 @@ class TestCreateContact:
                 headers={"Authorization": f"Bearer {access_token}"}
             )
 
-            assert response.status_code == 400, response.text
+            assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
             assert response.json()["detail"] == CREATE_CONTACT_FAILED
 
 
@@ -88,7 +89,7 @@ class TestGetContacts:
                 headers={"Authorization": f"Bearer {access_token}"}
             )
 
-            assert response.status_code == 200, response.text
+            assert response.status_code == status.HTTP_200_OK, response.text
             data = response.json()
             assert isinstance(data, list)
             assert data[0]["name"] == "Isana"
@@ -105,7 +106,7 @@ class TestGetContact:
                 headers={"Authorization": f"Bearer {access_token}"}
             )
 
-            assert response.status_code == 200, response.text
+            assert response.status_code == status.HTTP_200_OK, response.text
             data = response.json()
             assert data["name"] == "Isana"
             assert "id" in data
@@ -120,7 +121,7 @@ class TestGetContact:
                 headers={"Authorization": f"Bearer {access_token}"}
             )
 
-            assert response.status_code == 404, response.text
+            assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
             data = response.json()
             assert data["detail"] == NOT_FOUND_CONTACT
 
@@ -146,7 +147,7 @@ class TestUpdateContact:
                 headers={"Authorization": f"Bearer {access_token}"}
             )
 
-            assert response.status_code == 200, response.text
+            assert response.status_code == status.HTTP_200_OK, response.text
             data = response.json()
             assert data["name"] == contact["name"]
             assert data["surname"] == contact["surname"]
@@ -165,7 +166,7 @@ class TestUpdateContact:
                 headers={"Authorization": f"Bearer {access_token}"}
             )
 
-            assert response.status_code == 404, response.text
+            assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
             assert response.json()["detail"] == NOT_FOUND_CONTACT
 
 
@@ -195,7 +196,7 @@ class TestGetContactsByQuery:
                 headers = {"Authorization": f"Bearer {access_token}"}
             )
 
-            assert response.status_code == 200, response.text
+            assert response.status_code == status.HTTP_200_OK, response.text
             data = response.json()
             assert isinstance(data, list)
             assert data[0]["email"] == contact["email"]
@@ -219,7 +220,7 @@ class TestGetContactsBirthdays:
                 headers={"Authorization": f"Bearer {access_token}"}
             )
 
-            assert response.status_code == 200, response.text
+            assert response.status_code == status.HTTP_200_OK, response.text
             print(response.text)
             data = response.json()
             assert isinstance(data, list)
@@ -239,7 +240,7 @@ class TestUpdateContactStatus:
                 headers = {"Authorization": f"Bearer {access_token}"}
             )
 
-            assert response.status_code == 200, response.text
+            assert response.status_code == status.HTTP_200_OK, response.text
             data = response.json()
             assert data["done"] == True
             assert "id" in data
@@ -270,7 +271,7 @@ class TestRemoveContact:
                 headers={"Authorization": f"Bearer {access_token}"}
             )
 
-            assert response.status_code == 200, response.text
+            assert response.status_code == status.HTTP_200_OK, response.text
             assert response.json()["name"] == contact["name"]
             assert response.json()["email"] == contact["email"]
             assert "id" in response.json()
@@ -284,5 +285,5 @@ class TestRemoveContact:
                 headers={"Authorization": f"Bearer {access_token}"}
             )
 
-            assert response.status_code == 404, response.text
+            assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
             assert response.json()["detail"] == "Not Found"
